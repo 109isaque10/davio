@@ -37,9 +37,15 @@ async function mergeDefaultUserConfig(userConfig){
 }
 
 function isEpisodeFile(file, season, episode){
-  return file.basename.includes(`S${numberPad(season)}E${numberPad(episode)}`)
-    || file.basename.includes(`${season}${numberPad(episode)}`)
-    || file.basename.includes(`${numberPad(episode)}`);
+  return file.basename.includes(`${numberPad(episode)}`);
+}
+
+function isEpisodeSeasonFile(file, season, episode){
+  return file.basename.includes(`S${numberPad(season)}E${numberPad(episode)}`);
+}
+
+function isSimpleEpisodeSeasonFile(file, season, episode){
+  return file.basename.includes(`${season}${numberPad(episode)}`);
 }
 
 async function getFilesRecursive(client, path){
@@ -113,6 +119,10 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
   files = files.map(file => file.item);
 
   if(type == 'series'){
+    files = files.filter(file => isEpisodeSeasonFile(file, season, episode));
+  } else if(!files){
+    files = files.filter(file => isSimpleEpisodeSeasonFile(file, season, episode));
+  } else{
     files = files.filter(file => isEpisodeFile(file, season, episode));
   }
 
