@@ -65,7 +65,7 @@ async function getFilesRecursive(client, path){
   return files;
 }
 
-async function getFiles(client, userConfig){
+async function getFiles(client, userConfig, type){
 
   const cacheKey = `davfiles:${userConfig.id}`;
 
@@ -79,7 +79,12 @@ async function getFiles(client, userConfig){
     let files = await cache.get(cacheKey);
 
     if(!files){
-      files = await getFilesRecursive(client, userConfig.root || '/');
+      if(type == 'series'){
+        root = userConfig.rootTV
+      }else{
+        root = userConfig.root
+      }
+      files = await getFilesRecursive(client, root);
       files = files.filter(file => isVideo(file.filename));
       await cache.set(cacheKey, files, {ttl: 120});
     }
@@ -109,7 +114,7 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
 
   console.log(`${stremioId} : ${userConfig.shortName} : Searching files ...`);
 
-  files = await getFiles(client, userConfig);
+  files = await getFiles(client, userConfig, type);
 
   console.log(`${stremioId} : ${userConfig.shortName} : ${files.length} total files fetched from (${new URL(userConfig.url).hostname}) in ${(new Date() - startDate) / 1000}s`);
   startDate = new Date();
@@ -142,7 +147,7 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     rows.push(details.join(' '));
     return {
       name: `[${userConfig.shortName}+] ${config.addonName} ${file.quality.label || ''}`,
-      title: rows.join("\n"),
+      description: rows.join("\n"),
       url: client.getFileDownloadLink(file.filename)
     };
   });
