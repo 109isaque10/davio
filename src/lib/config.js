@@ -66,7 +66,8 @@ export default {
         {type: 'text',      name: 'url',         label: 'WebDAV URL',          required: true,  value: ''},
         {type: 'text',      name: 'username',    label: 'Username',            required: false, value: ''},
         {type: 'text',      name: 'password',    label: 'Password',            required: false, value: ''},
-        {type: 'text',      name: 'root',        label: 'Root Folder',         required: true,  value: '/'}
+        {type: 'text',      name: 'rootTV',        label: 'Root TV Folder',         required: true,  value: '/'},
+        {type: 'text',      name: 'root',        label: 'Root Movies Folder',         required: true,  value: '/'}
       ]  
     }
   ],
