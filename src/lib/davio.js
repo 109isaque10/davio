@@ -79,6 +79,7 @@ async function getFiles(client, userConfig, type){
     let files = await cache.get(cacheKey);
 
     if(!files){
+      let root = '/'
       if(type == 'series'){
         root = userConfig.rootTV
       }else{
