@@ -5,6 +5,7 @@ import {parseWords, numberPad, bytesToSize, isVideo, wait} from './util.js';
 import config from './config.js';
 import cache from './cache.js';
 import * as meta from './meta.js';
+import { get } from 'http';
 
 const actionInProgress = {
   getFiles: {}
@@ -53,11 +54,7 @@ async function getFilesRecursive(client, path){
   try {
     const contents = await client.getDirectoryContents(path);
     for(const item of contents){
-      if(item.type === 'directory'){
-        files = files.concat(await getFilesRecursive(client, item.filename));
-      }else{
-        files.push(item);
-      }
+      files.push(item)
     }
   }catch(err){
     console.log('getFilesRecursive', err);
@@ -65,7 +62,7 @@ async function getFilesRecursive(client, path){
   return files;
 }
 
-async function getFiles(client, userConfig, type){
+async function getFiles(client, userConfig, type, name, season){
 
   const cacheKey = `davfiles:${userConfig.id}`;
 
@@ -86,6 +83,10 @@ async function getFiles(client, userConfig, type){
         root = userConfig.root
       }
       files = await getFilesRecursive(client, root);
+      files = files.filter(file => file.basename.includes(name));
+      files = await getFilesRecursive(client, files[0].basename);
+      files = files.filter(file => file.basename.includes(`Season ${numberPad(season)}`), file => file.basename.includes(`Season ${numberPad(season, 2)}`));
+      files = await getFilesRecursive(client, files[0].basename);
       files = files.filter(file => isVideo(file.filename));
       await cache.set(cacheKey, files, {ttl: 120});
     }
@@ -115,7 +116,7 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
 
   console.log(`${stremioId} : ${userConfig.shortName} : Searching files ...`);
 
-  files = await getFiles(client, userConfig, type);
+  files = await getFiles(client, userConfig, type, metaInfos.name, season);
 
   console.log(`${stremioId} : ${userConfig.shortName} : ${files.length} total files fetched from (${new URL(userConfig.url).hostname}) in ${(new Date() - startDate) / 1000}s`);
   startDate = new Date();
