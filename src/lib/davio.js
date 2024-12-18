@@ -64,7 +64,7 @@ async function getFilesRecursive(client, path){
 
 async function getFiles(client, userConfig, type, name, season){
 
-  const cacheKey = `davfiles:${userConfig.id}`;
+  const cacheKey = `davfiles:${userConfig.id}:${type}:${name}:${season}`;
 
   while(actionInProgress.getFiles[cacheKey]){
     await wait(100);
@@ -84,9 +84,9 @@ async function getFiles(client, userConfig, type, name, season){
       }
       files = await getFilesRecursive(client, root);
       files = files.filter(file => file.basename.includes(name));
-      files = await getFilesRecursive(client, files[0].basename);
+      files = await getFilesRecursive(client, files[0].filename);
       files = files.filter(file => file.basename.includes(`Season ${numberPad(season)}`), file => file.basename.includes(`Season ${numberPad(season, 2)}`));
-      files = await getFilesRecursive(client, files[0].basename);
+      files = await getFilesRecursive(client, files[0].filename);
       files = files.filter(file => isVideo(file.filename));
       await cache.set(cacheKey, files, {ttl: 120});
     }
