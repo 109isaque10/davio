@@ -88,7 +88,7 @@ async function getFiles(client, userConfig, type, name, season){
       files = files.filter(file => file.basename.includes(`Season ${numberPad(season)}`), file => file.basename.includes(`Season ${numberPad(season, 2)}`));
       files = await getFilesRecursive(client, files[0].filename);
       files = files.filter(file => isVideo(file.filename));
-      await cache.set(cacheKey, files, {ttl: 120});
+      await cache.set(cacheKey, files, {ttl: 259200});
     }
 
     return files || [];
