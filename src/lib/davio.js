@@ -144,13 +144,15 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     file.subtitles = []
     for (let index = 0; index < subtitles.length; index++) {
       subtitle = subtitles[index];
+      console.log('not yet: '+subtitle)
       if((subtitle.basename.split('.').at(-1)).includes(file.basename)){
         file.subtitles.push(subtitle);
-        console.log(subtitle)
+        console.log('passed: '+subtitle)
+        continue
       }
       subtitles.splice(index, 1);
     };
-    console.log(subtitles)
+    console.log('all subtitles: \n'+subtitles)
     for (let index = 0; index < file.subtitles.length; index++) {
       const element = file.subtitles[index];
       element = {
@@ -160,7 +162,7 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
       };
       file.subtitles[index] = element;
     }
-    console.log(file.subtitles)
+    console.log('unique subtitles: \n'+file.subtitles)
   });
 
   files = files.sort((a, b) => b.quality.value - a.quality.value);
