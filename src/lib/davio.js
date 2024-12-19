@@ -83,13 +83,11 @@ async function getFiles(client, userConfig, type, name, season){
         root = userConfig.root
       }
       files = await getFilesRecursive(client, root);
-      files = files.filter(file => file.basename.includes(name));
+      files = files.filter(file => file.basename.includes(name) && file.type == 'directory');
       files = await getFilesRecursive(client, files[0].filename);
-      files = files.filter(file => file.basename.includes(`Season ${numberPad(season)}`), file => file.basename.includes(`Season ${numberPad(season, 2)}`));
-      files = await getFilesRecursive(client, files[0].filename);
-      files.subtitles = files.filter(file => isSubtitle(file.basename));
-      if(files.subtitles === undefined){
-        files.subtitles = []
+      if(type == 'series'){
+        files = files.filter(file => file.basename.includes(`Season ${numberPad(season)}`), file => file.basename.includes(`Season ${numberPad(season, 2)}`));
+        files = await getFilesRecursive(client, files[0].filename);
       }
       files = files.filter(file => isVideo(file.basename));
       await cache.set(cacheKey, files, {ttl: 259200});
@@ -143,24 +141,6 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     const basename = file.basename.toLowerCase();
     file.quality = config.qualities.find(q => q.value != 0 && basename.includes(`${q.value}p`)) || config.qualities[0];
     file.languages = config.languages.filter(l => parseWords(basename).join(' ').match(l.pattern));
-    file.subtitles = []
-    for (let index = 0; index < files.subtitles.length; index++) {
-      const subtitle = files.subtitles[index];
-      if(file.basename.includes(subtitle.basename.split('.').at(-2))){
-        file.subtitles.push(subtitle);
-        continue
-      }
-      subtitles.splice(index, 1);
-    };
-    for (let index = 0; index < file.subtitles.length; index++) {
-      const element = file.subtitles[index];
-      file.subtitles[index] = {
-        id: index,
-        url: client.getFileDownloadLink(element.filename),
-        language: 'en'
-      };
-    }
-    console.log('unique subtitles: \n'+file.subtitles)
   });
 
   files = files.sort((a, b) => b.quality.value - a.quality.value);
@@ -173,7 +153,6 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
       name: `[${userConfig.shortName}+] ${config.addonName} ${file.quality.label || ''}`,
       description: rows.join("\n"),
       url: client.getFileDownloadLink(file.filename),
-      subtitles: file.subtitles,
       notWebReady: 'true',
       behaviorHints: {
         bingeGroup: 'davio|'+file.basename,
