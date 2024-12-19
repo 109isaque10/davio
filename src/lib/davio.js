@@ -143,7 +143,7 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     file.languages = config.languages.filter(l => parseWords(basename).join(' ').match(l.pattern));
     file.subtitles = []
     for (let index = 0; index < subtitles.length; index++) {
-      subtitle = subtitles[index];
+      const subtitle = subtitles[index];
       console.log('not yet: '+subtitle)
       if((subtitle.basename.split('.').at(-1)).includes(file.basename)){
         file.subtitles.push(subtitle);
