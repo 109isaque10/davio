@@ -165,7 +165,7 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     const rows = [file.basename];
     const details = [`💾${bytesToSize(file.size)}`, ...file.languages.map(language => language.emoji)];
     rows.push(details.join(' '));
-    stream = {
+    const stream = {
       name: `[${userConfig.shortName}+] ${config.addonName} ${file.quality.label || ''}`,
       description: rows.join("\n"),
       url: client.getFileDownloadLink(file.filename),
