@@ -51,7 +51,7 @@ export function isVideo(filename){
     "ogm",
     "ts",
     "m2ts"
-  ].includes(filename?.split('.').pop());
+  ].includes(filename?.split('.').at(-1));
 }
 
 export function isSubtitle(filename){
@@ -59,7 +59,7 @@ export function isSubtitle(filename){
     "ass",
     "srt",
     "vtt"
-  ].includes(filename?.split('.').pop());
+  ].includes(filename?.split('.').at(-1));
 }
 
 export async function promiseTimeout(promise, ms){
