@@ -146,9 +146,11 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
       subtitle = subtitles[index];
       if((subtitle.basename.split('.').at(-1)).includes(file.basename)){
         file.subtitles.push(subtitle);
+        console.log(subtitle)
       }
       subtitles.splice(index, 1);
     };
+    console.log(subtitles)
     for (let index = 0; index < file.subtitles.length; index++) {
       const element = file.subtitles[index];
       element = {
@@ -158,6 +160,7 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
       };
       file.subtitles[index] = element;
     }
+    console.log(file.subtitles)
   });
 
   files = files.sort((a, b) => b.quality.value - a.quality.value);
