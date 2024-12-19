@@ -88,9 +88,7 @@ async function getFiles(client, userConfig, type, name, season){
       files = await getFilesRecursive(client, files[0].filename);
       files = files.filter(file => file.basename.includes(`Season ${numberPad(season)}`), file => file.basename.includes(`Season ${numberPad(season, 2)}`));
       files = await getFilesRecursive(client, files[0].filename);
-      console.log(JSON.stringify(files));
       subtitles = files.filter(file => isSubtitle(file.basename));
-      console.log(subtitles);
       files = files.filter(file => isVideo(file.basename));
       await cache.set(cacheKey, files, {ttl: 259200});
     }
@@ -147,11 +145,9 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     for (let index = 0; index < subtitles.length; index++) {
       if((subtitle.basename.split('.').at(-1)).includes(file.basename)){
         file.subtitles.push(subtitle);
-        console.log(subtitle);
       }
       subtitles.splice(index, 1);
     };
-    console.log(file.subtitles);
     for (let index = 0; index < file.subtitles.length; index++) {
       const element = file.subtitles[index];
       element = {
@@ -161,7 +157,6 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
       };
       file.subtitles[index] = element;
     }
-    console.log(file.subtitles);
   });
 
   files = files.sort((a, b) => b.quality.value - a.quality.value);
