@@ -142,12 +142,12 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     file.quality = config.qualities.find(q => q.value != 0 && basename.includes(`${q.value}p`)) || config.qualities[0];
     file.languages = config.languages.filter(l => parseWords(basename).join(' ').match(l.pattern));
     file.subtitles = []
-    subtitles.forEach(subtitle => {
+    for (let index = 0; index < subtitles.length; index++) {
       if(subtitle.basename.includes(file.basename)){
         file.subtitles.push(subtitle);
       }
       subtitles.splice(index, 1)
-    });
+    };
     for (let index = 0; index < file.subtitles.length; index++) {
       const element = file.subtitles[index];
       element = {
