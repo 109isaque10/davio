@@ -1,11 +1,10 @@
 import {createHash} from 'crypto';
 import { createClient } from "webdav/web";
 import Fuse from 'fuse.js'
-import {parseWords, numberPad, bytesToSize, isVideo, wait} from './util.js';
+import {parseWords, numberPad, bytesToSize, isVideo, wait, isSubtitle} from './util.js';
 import config from './config.js';
 import cache from './cache.js';
 import * as meta from './meta.js';
-import { get } from 'http';
 
 const actionInProgress = {
   getFiles: {}
@@ -37,7 +36,7 @@ async function mergeDefaultUserConfig(userConfig){
   return Object.assign({}, config.defaultUserConfig, userConfig);
 }
 
-function isEpisodeFile(file, season, episode){
+function isEpisodeFile(file, episode){
   return file.basename.includes(`${numberPad(episode)}`);
 }
 
@@ -87,7 +86,11 @@ async function getFiles(client, userConfig, type, name, season){
       files = await getFilesRecursive(client, files[0].filename);
       files = files.filter(file => file.basename.includes(`Season ${numberPad(season)}`), file => file.basename.includes(`Season ${numberPad(season, 2)}`));
       files = await getFilesRecursive(client, files[0].filename);
-      files = files.filter(file => isVideo(file.filename));
+      files.subtitles = files.filter(file => isSubtitle(file.basename));
+      if(not files.subtitles){
+        files.subtitles = []
+      }
+      files = files.filter(file => isVideo(file.basename));
       await cache.set(cacheKey, files, {ttl: 259200});
     }
 
@@ -130,7 +133,7 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
   } else if(!files){
     files = files.filter(file => isSimpleEpisodeSeasonFile(file, season, episode));
   } else{
-    files = files.filter(file => isEpisodeFile(file, season, episode));
+    files = files.filter(file => isEpisodeFile(file, episode));
   }
 
   console.log(`${stremioId} : ${userConfig.shortName}: ${files.length} files found in ${(new Date() - startDate) / 1000}s`);
@@ -139,6 +142,22 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     const basename = file.basename.toLowerCase();
     file.quality = config.qualities.find(q => q.value != 0 && basename.includes(`${q.value}p`)) || config.qualities[0];
     file.languages = config.languages.filter(l => parseWords(basename).join(' ').match(l.pattern));
+    file.subtitles = []
+    files.subtitles.forEach(subtitle => {
+      if(subtitle.basename.includes(file.basename)){
+        file.subtitles.push(subtitle);
+      }
+      files.subtitles.splice(index, 1)
+    });
+    for (let index = 0; index < file.subtitles.length; index++) {
+      const element = file.subtitles[index];
+      element = {
+        id: index,
+        url: client.getFileDownloadLink(element.filename),
+        language: 'en'
+      };
+      file.subtitles[index] = element;
+    }
   });
 
   files = files.sort((a, b) => b.quality.value - a.quality.value);
@@ -150,7 +169,13 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     return {
       name: `[${userConfig.shortName}+] ${config.addonName} ${file.quality.label || ''}`,
       description: rows.join("\n"),
-      url: client.getFileDownloadLink(file.filename)
+      url: client.getFileDownloadLink(file.filename),
+      subtitles: file.subtitles,
+      notWebReady: 'true',
+      behaviorHints: {
+        bingeGroup: 'davio|'+file.basename,
+        filename: file.basename
+      }
     };
   });
 

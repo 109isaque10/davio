@@ -54,6 +54,14 @@ export function isVideo(filename){
   ].includes(filename?.split('.').pop());
 }
 
+export function isSubtitle(filename){
+  return [
+    "ass",
+    "srt",
+    "vtt"
+  ].includes(filename?.split('.').pop());
+}
+
 export async function promiseTimeout(promise, ms){
   const ac = new AbortController();
   const waitPromise = setTimeout(ms, null, { signal: ac.signal }).then(() => Promise.reject(`Max execution time reached ${ms}`));

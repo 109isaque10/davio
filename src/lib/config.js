@@ -94,7 +94,7 @@ export default {
     {value: 'dutch',      emoji: '🇳🇱', pattern: 'dutch'},
     {value: 'italian',    emoji: '🇮🇹', pattern: 'ita(lian)?'},
     {value: 'korean',     emoji: '🇰🇷', pattern: 'korean'},
-    {value: 'portuguese', emoji: '🇵🇹', pattern: 'portuguese'},
+    {value: 'portuguese', emoji: '🇵🇹', pattern: '(dual)?(dublado)?(nacional)?(pt)?'},
     {value: 'russian',    emoji: '🇷🇺', pattern: 'rus(sian)?'},
     {value: 'swedish',    emoji: '🇸🇪', pattern: 'swedish'},
     {value: 'tamil',      emoji: '🇮🇳', pattern: 'tamil'},
