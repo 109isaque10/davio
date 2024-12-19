@@ -176,7 +176,7 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
         filename: file.basename
       }
     }
-    console.log(`${stremioId} : ${userConfig.shortName}: stream found: \n${str(stream)}`)
+    console.log(`${stremioId} : ${userConfig.shortName}: stream found: \n${JSON.stringify(stream)}`)
     return stream;
   });
 
