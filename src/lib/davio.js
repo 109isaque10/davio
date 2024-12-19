@@ -146,7 +146,7 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     for (let index = 0; index < subtitles.length; index++) {
       const subtitle = subtitles[index];
       console.log('not yet: '+JSON.stringify(subtitle))
-      if((subtitle.basename.split('.').at(-2)).includes(file.basename)){
+      if(file.basename.includes(subtitle.basename.split('.').at(-2))){
         file.subtitles.push(subtitle);
         console.log('passed: '+JSON.stringify(subtitle))
         continue
