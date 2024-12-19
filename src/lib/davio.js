@@ -88,7 +88,7 @@ async function getFiles(client, userConfig, type, name, season){
       files = await getFilesRecursive(client, files[0].filename);
       files = files.filter(file => file.basename.includes(`Season ${numberPad(season)}`), file => file.basename.includes(`Season ${numberPad(season, 2)}`));
       files = await getFilesRecursive(client, files[0].filename);
-      console.log('all files: \n'+files)
+      console.log('all files: \n'+JSON.stringify(files))
       subtitles = files.filter(file => isSubtitle(file.basename));
       files = files.filter(file => isVideo(file.basename));
       await cache.set(cacheKey, files, {ttl: 259200});
@@ -145,15 +145,15 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     file.subtitles = []
     for (let index = 0; index < subtitles.length; index++) {
       const subtitle = subtitles[index];
-      console.log('not yet: '+subtitle)
-      if((subtitle.basename.split('.').at(-1)).includes(file.basename)){
+      console.log('not yet: '+JSON.stringify(subtitle))
+      if((subtitle.basename.split('.').at(-2)).includes(file.basename)){
         file.subtitles.push(subtitle);
-        console.log('passed: '+subtitle)
+        console.log('passed: '+JSON.stringify(subtitle))
         continue
       }
       subtitles.splice(index, 1);
     };
-    console.log('all subtitles: \n'+subtitles)
+    console.log('all subtitles: \n'+JSON.stringify(subtitles))
     for (let index = 0; index < file.subtitles.length; index++) {
       const element = file.subtitles[index];
       element = {
