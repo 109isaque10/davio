@@ -10,6 +10,8 @@ const actionInProgress = {
   getFiles: {}
 };
 
+var subtitles = []
+
 function parseStremioId(stremioId){
   const [id, season, episode] = stremioId.split(':');
   return {id, season: parseInt(season || 0), episode: parseInt(episode || 0)};
@@ -86,9 +88,9 @@ async function getFiles(client, userConfig, type, name, season){
       files = await getFilesRecursive(client, files[0].filename);
       files = files.filter(file => file.basename.includes(`Season ${numberPad(season)}`), file => file.basename.includes(`Season ${numberPad(season, 2)}`));
       files = await getFilesRecursive(client, files[0].filename);
-      files.subtitles = files.filter(file => isSubtitle(file.basename));
-      if(not files.subtitles){
-        files.subtitles = []
+      subtitles = files.filter(file => isSubtitle(file.basename));
+      if(subtitles === undefined){
+        subtitles = [];
       }
       files = files.filter(file => isVideo(file.basename));
       await cache.set(cacheKey, files, {ttl: 259200});
@@ -143,11 +145,11 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     file.quality = config.qualities.find(q => q.value != 0 && basename.includes(`${q.value}p`)) || config.qualities[0];
     file.languages = config.languages.filter(l => parseWords(basename).join(' ').match(l.pattern));
     file.subtitles = []
-    files.subtitles.forEach(subtitle => {
+    subtitles.forEach(subtitle => {
       if(subtitle.basename.includes(file.basename)){
         file.subtitles.push(subtitle);
       }
-      files.subtitles.splice(index, 1)
+      subtitles.splice(index, 1)
     });
     for (let index = 0; index < file.subtitles.length; index++) {
       const element = file.subtitles[index];
@@ -166,7 +168,7 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     const rows = [file.basename];
     const details = [`💾${bytesToSize(file.size)}`, ...file.languages.map(language => language.emoji)];
     rows.push(details.join(' '));
-    return {
+    stream = {
       name: `[${userConfig.shortName}+] ${config.addonName} ${file.quality.label || ''}`,
       description: rows.join("\n"),
       url: client.getFileDownloadLink(file.filename),
@@ -176,7 +178,9 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
         bingeGroup: 'davio|'+file.basename,
         filename: file.basename
       }
-    };
+    }
+    console.log(`${stremioId} : ${userConfig.shortName}: stream found: \n${stream}`)
+    return stream;
   });
 
 }
