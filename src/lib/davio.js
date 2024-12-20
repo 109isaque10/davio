@@ -150,15 +150,15 @@ export async function getStreams(userConfig, type, stremioId, publicUrl){
     const details = [`💾${bytesToSize(file.size)}`, ...file.languages.map(language => language.emoji)];
     rows.push(details.join(' '));
     const stream = {
-      name: `[${userConfig.shortName}+] ${config.addonName} ${file.quality.label || ''}`,
+      name: `[${userConfig.shortName}⚡] ${config.addonName} ${file.quality.label || ''}`,
       description: rows.join("\n"),
       url: client.getFileDownloadLink(file.filename),
       notWebReady: 'true',
       behaviorHints: {
-        bingeGroup: 'davio|'+file.basename,
+        bingeGroup: `davio|${file.basename}`,
         filename: file.basename
       }
-    }
+    };
     console.log(`${stremioId} : ${userConfig.shortName}: stream found: \n${JSON.stringify(stream)}`)
     return stream;
   });
